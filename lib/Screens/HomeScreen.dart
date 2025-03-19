@@ -1,7 +1,9 @@
-
 import 'package:flutter/material.dart';
+import 'package:persistent_todo/Models/TaskModel.dart';
+import 'package:persistent_todo/Screens/getStarted.dart';
 import 'package:persistent_todo/Widgets/backgroundClipper.dart';
 import 'package:persistent_todo/Widgets/teamCard.dart';
+import '';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -18,7 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Default background color
+      backgroundColor: Colors.white,
       drawer: Drawer(
         elevation: 2,
         width: 250,
@@ -111,14 +113,22 @@ class _HomeUIState extends State<HomeUI> {
             Padding(
               padding: const EdgeInsets.only(top: 25, left: 25, right: 25),
               child: Center(
-                child: Card.outlined(
-                  shape: RoundedRectangleBorder(),
-                  elevation: 3,
-                  child: ListTile(
-                    title: Text("Today"),
-                    subtitle: Text("4 Task"),
-                    leading: Icon(Icons.wb_sunny_sharp, color: Colors.amber),
-                    trailing: Icon(Icons.more_vert_sharp),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Getstarted()),
+                    );
+                  },
+                  child: Card.outlined(
+                    shape: RoundedRectangleBorder(),
+                    elevation: 3,
+                    child: ListTile(
+                      title: Text("Today"),
+                      subtitle: Text("4 Task"),
+                      leading: Icon(Icons.wb_sunny_sharp, color: Colors.amber),
+                      trailing: Icon(Icons.more_vert_sharp),
+                    ),
                   ),
                 ),
               ),

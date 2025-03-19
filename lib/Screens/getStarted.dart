@@ -98,7 +98,8 @@ class GradientButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
+          border: Border(),
+          borderRadius: BorderRadius.circular(10),
           gradient: LinearGradient(
             colors: [Colors.tealAccent, Colors.teal],
             begin: Alignment.centerLeft,
