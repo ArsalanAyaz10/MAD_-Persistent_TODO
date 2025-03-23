@@ -2,11 +2,8 @@ class Taskmodel {
   final int id;
   final String title;
   final String description;
-  final bool status;
+  late  bool status;
 
-  List<Taskmodel> _tasks = [];
-
-  List<Taskmodel> get tasks => _tasks;
 
   Taskmodel(
     this.id, {
@@ -15,18 +12,22 @@ class Taskmodel {
     this.status = false,
   });
 
-  void addTask(String title, String description, DateTime dateTime) {
-    _tasks.add(
-      Taskmodel(
-        _tasks.length,
-        title: title,
-        description: description,
-        status: false,
-      ),
+    Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'status': status,
+    };
+  }
+
+  factory Taskmodel.fromJson(Map<String, dynamic> json) {
+    return Taskmodel(
+      json['id'],
+      title: json['title'],
+      description: json['description'],
+      status: json['status'],
     );
   }
 
-  void removeTask(int id) {
-    _tasks.removeWhere((task) => task.id == id);
-  }
 }

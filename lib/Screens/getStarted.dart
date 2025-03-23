@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_todo/Screens/HomeScreen.dart';
-import 'package:persistent_todo/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Getstarted extends StatelessWidget {
   Getstarted({super.key});
@@ -29,7 +29,9 @@ class Getstarted extends StatelessWidget {
 }
 
 class buildUI extends StatelessWidget {
-  const buildUI({super.key});
+  buildUI({super.key});
+
+  TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,34 @@ class buildUI extends StatelessWidget {
                 ),
               ),
 
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 20,
+                  bottom: 10,
+                  left: 30,
+                  right: 30,
+                ),
+                child: TextFormField(
+                  controller: controller,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: "User Name",
+                    prefixIcon: const Icon(Icons.event_note_outlined),
+                    filled: true,
+                    fillColor: const Color.fromARGB(255, 246, 246, 246),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Enter Name';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              SizedBox(height: 30),
               Center(
                 child: GradientButton(
                   text: "Get Started",
@@ -70,9 +100,11 @@ class buildUI extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => MyHomePage(title: "Persistent TODO"),
+                            (context) =>
+                                MyHomePage(name: controller.text.trim()),
                       ),
                     );
+                    _storeName(controller.text.trim());
                   },
                 ),
               ),
@@ -88,8 +120,7 @@ class GradientButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const GradientButton({Key? key, required this.text, required this.onPressed})
-    : super(key: key);
+  const GradientButton({super.key, required this.text, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -124,4 +155,9 @@ class GradientButton extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _storeName(String name) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('name', name);
 }

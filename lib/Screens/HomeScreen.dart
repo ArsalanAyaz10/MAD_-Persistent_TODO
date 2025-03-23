@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_todo/Models/TaskModel.dart';
-import 'package:persistent_todo/Screens/getStarted.dart';
 import 'package:persistent_todo/Widgets/backgroundClipper.dart';
 import 'package:persistent_todo/Widgets/teamCard.dart';
-import '';
+import 'package:persistent_todo/provider/TaskProvider.dart';
+import 'package:provider/provider.dart';
+import '../Widgets/dialogBox.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  MyHomePage({super.key, required this.name});
 
-  final String title;
+  late String name;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -43,6 +44,18 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       appBar: AppBar(backgroundColor: primary),
+      floatingActionButton: FloatingActionButton(
+        autofocus: true,
+        elevation: 5,
+        backgroundColor: Colors.amber,
+        mouseCursor: MouseCursor.defer,
+        focusColor: Colors.yellowAccent,
+        hoverColor: Colors.yellowAccent,
+        onPressed: () async {
+          await showMyDialog(context);
+        },
+        child: Icon(Icons.add),
+      ),
       body: Stack(
         children: [
           ClipPath(
@@ -53,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
             ),
           ),
-          HomeUI(),
+          HomeUI(name: widget.name),
         ],
       ),
     );
@@ -61,7 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class HomeUI extends StatefulWidget {
-  const HomeUI({super.key});
+  const HomeUI({super.key, required this.name});
+
+  final String name;
 
   @override
   State<HomeUI> createState() => _HomeUIState();
@@ -85,14 +100,14 @@ class _HomeUIState extends State<HomeUI> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Hello Arsalan",
+                      "Hello ${widget.name}",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      "You have x Tasks",
+                      "You have ${Provider.of<Taskprovider>(context).tasks.length} Tasks",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
@@ -100,94 +115,102 @@ class _HomeUIState extends State<HomeUI> {
                     ),
                   ],
                 ),
-                Spacer(),
-                Image.asset(
-                  "assets/Avatar.jpg",
-                  filterQuality: FilterQuality.high,
-                  fit: BoxFit.contain,
-                  width: 60,
-                  height: 60,
-                ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25, left: 25, right: 25),
-              child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Getstarted()),
+
+            SizedBox(height: 10),
+            Selector<Taskprovider, List<Taskmodel>>(
+              selector: (context, taskProvider) {
+                taskProvider.fetchData();
+                return taskProvider.tasks;
+              },
+              builder: (context, tasks, child) {
+                if (tasks.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 50),
+                      child: Text(
+                        "No tasks added yet",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    final task = tasks[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                        top: 10,
+                        left: 25,
+                        right: 25,
+                      ),
+                      child: Card.outlined(
+                        shape: RoundedRectangleBorder(),
+                        elevation: 3,
+                        child: ListTile(
+                          title: Text(
+                            task.title,
+                            style: TextStyle(
+                              decoration:
+                                  task.status
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                              fontWeight:
+                                  task.status
+                                      ? FontWeight.w500
+                                      : FontWeight.normal,
+                              color: task.status ? Colors.grey : Colors.black,
+                            ),
+                          ),
+                          subtitle: Text(task.description),
+                          leading: Icon(
+                            Icons.numbers_sharp,
+                            color: Colors.amber,
+                          ),
+                          trailing: PopupMenuButton<String>(
+                            color: Color.fromARGB(97, 229, 229, 50),
+                            padding: EdgeInsets.all(10),
+                            elevation: 1,
+                            borderRadius: BorderRadius.circular(8),
+                            onSelected: (value) {
+                              final taskProvider = Provider.of<Taskprovider>(
+                                context,
+                                listen: false,
+                              );
+                              if (value == 'Remove Task') {
+                                taskProvider.removeTask(id: task.id);
+                              } else if (value == 'Mark as Completed') {
+                                taskProvider.toggleTask(id: task.id);
+                              }
+                            },
+                            itemBuilder:
+                                (context) => [
+                                  const PopupMenuItem(
+                                    value: 'Mark as Completed',
+                                    child: Text("Mark as Completed"),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'Remove Task',
+                                    child: Text("Delete Task"),
+                                  ),
+                                ],
+                            icon: const Icon(Icons.more_vert),
+                          ),
+                        ),
+                      ),
                     );
                   },
-                  child: Card.outlined(
-                    shape: RoundedRectangleBorder(),
-                    elevation: 3,
-                    child: ListTile(
-                      title: Text("Today"),
-                      subtitle: Text("4 Task"),
-                      leading: Icon(Icons.wb_sunny_sharp, color: Colors.amber),
-                      trailing: Icon(Icons.more_vert_sharp),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 5, left: 25, right: 25),
-              child: Center(
-                child: Card.outlined(
-                  shape: RoundedRectangleBorder(),
-                  elevation: 3,
-                  child: ListTile(
-                    title: Text("Planned"),
-                    subtitle: Text("2 Task"),
-                    leading: Icon(
-                      Icons.calendar_month_sharp,
-                      color: Colors.amber,
-                    ),
-                    trailing: Icon(Icons.more_vert_sharp),
-                  ),
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 5, left: 25, right: 25),
-              child: Center(
-                child: Card.outlined(
-                  shape: RoundedRectangleBorder(),
-                  elevation: 3,
-                  child: ListTile(
-                    title: Text("Work"),
-                    subtitle: Text("12 Task"),
-                    leading: Icon(
-                      Icons.work_history_sharp,
-                      color: Colors.amber,
-                    ),
-                    trailing: Icon(Icons.more_vert_sharp),
-                  ),
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 5, left: 25, right: 25),
-              child: Center(
-                child: Card.outlined(
-                  shape: RoundedRectangleBorder(),
-                  elevation: 3,
-                  child: ListTile(
-                    title: Text("Shopping"),
-                    subtitle: Text("9 Task"),
-                    leading: Icon(
-                      Icons.shopping_bag_sharp,
-                      color: Colors.amber,
-                    ),
-                    trailing: Icon(Icons.more_vert_sharp),
-                  ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),
