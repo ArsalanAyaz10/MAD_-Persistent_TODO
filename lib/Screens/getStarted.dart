@@ -42,18 +42,6 @@ class buildUI extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/Avatar.jpg",
-                    filterQuality: FilterQuality.high,
-                    fit: BoxFit.contain,
-                    width: 150,
-                    height: 150,
-                  ),
-                ],
-              ),
               SizedBox(height: 20),
               Text("Organize Your Life"),
               SizedBox(height: 10),
@@ -120,7 +108,11 @@ class GradientButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const GradientButton({super.key, required this.text, required this.onPressed});
+  const GradientButton({
+    super.key,
+    required this.text,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
